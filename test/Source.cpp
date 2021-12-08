@@ -3,6 +3,7 @@
 
 using namespace std;
 
+
 void titleMenu();
 void game(int roundMax);
 void gameInput();
@@ -11,10 +12,11 @@ bool victDecider(int playerChoice, int computerChoice);
 void helpMenu();
 void printRoundScore();
 void printCurInputs();
-void computerRoundWin();
-void playerRoundWin();
-void drawRound();
+void roundWin(int playerChoice, int compChoice);
+void resetGameVars();
+void overallWinner(int compScore, int playerScore);
 
+//define all the global variable
 int playerChoice = 0;
 int playerScore = 0;
 int computerChoice = 0;
@@ -29,6 +31,7 @@ bool endlessMode = false;
 
 string gameChoices[5] = { "Rock", "Paper", "Scissors", "Lizard", "Spock" };
 
+//define the overall game logic (with all the draw conditions as a loss as to not confuse the user in the condition the draw evaluation fails)
 bool gameLogic[5][5] = {
 	{false, false, true, true, false},
 	{true, false, false, false, true},
@@ -38,6 +41,7 @@ bool gameLogic[5][5] = {
 };
 
 int main() {
+	//start the program in a while loop to allow the user to exit to the menu multiple times without exiting the program
 	while (progExit == false)
 	{
 		titleMenu();
@@ -46,18 +50,26 @@ int main() {
 	return 0;
 }
 
-void titleMenu() {
-	gameExit = false;
+void resetGameVars() {
+	//set all the game sepecific variables to allow the user to play multiple games without restarting the program
 	playerChoice = 0;
 	playerScore = 0;
 	computerChoice = 0;
 	computerScore = 0;
 	curRound = 1;
+}
 
+void titleMenu() {
+	//reset game specific variables
+	resetGameVars();
+
+	//clear the console
 	system("CLS");
+
 	//define the local menu variables
 	int menuSelect = 0;
 	int userRound = 0;
+
 	//print the menu options
 	cout << "[ [1] Best of 3    ]" << endl;
 	cout << "[ [2] Best of 5    ]" << endl;
@@ -74,65 +86,95 @@ void titleMenu() {
 	switch (menuSelect)
 	{
 	case 1: //best of 3
+		gameExit = false;
 		game(3);
 		break;
 	case 2: //best of 5
+		gameExit = false;
 		game(5);
 		break;
 	case 3: //best of user defined
+		gameExit = false;
 		cout << "Enter Number of Rounds: ";
 		cin >> userRound;
 		game(userRound);
 		break;
 	case 4: //endless mode
+		gameExit = false;
 		endlessMode = true;
 		game(0);
 		break;
 	case 5: //exit
+		gameExit = true;
 		progExit = true;
 		break;
-	default:
+	default: //reset the menu in case of an invalid input
+		cout << "[ !!Invalid Input!! ]" << endl;
+		system("pause");
 		titleMenu();
 		break;
 	}
 }
 void printRoundScore() {
+	//this function prints the current round number and the current scores
 	cout << "[ Round Number: " << curRound << " ]" << endl;
 	cout << "[ Player Score: " << playerScore << " || " << "Computer Score: " << computerScore << " ]" << endl << endl;
 }
 
 void printCurInputs() {
+	//this function prints the current round inputs from the user and the computer
 	cout << "--------------------------" << endl;
 	cout << "Player Input: " << gameChoices[playerChoice] << endl;
 	cout << "Computer Input: " << gameChoices[computerChoice] << endl;
 	cout << "--------------------------" << endl << endl;
 }
 
-void playerRoundWin() {
-	printRoundScore();
-	printCurInputs();
-	cout << "[ Player Wins!! ]" << endl << endl;
-	system("pause");
-	playerScore++;
-	curRound++;
-	system("CLS");
-}
+void roundWin(int playerChoice, int compChoice) {
+	//this function prints the individual round victor
 
-void computerRoundWin() {
+	//print the round score and current inputs to keep the visuals consistent
 	printRoundScore();
 	printCurInputs();
-	cout << "[ Computer Wins!! ]" << endl << endl;
-	system("pause");
-	computerScore++;
-	curRound++;
-	system("CLS");
-}
+	
+	//if (playerChoice == 5)
+	//{
+	//	cout << "";
+	//}
 
-void drawRound() {
-	printRoundScore();
-	printCurInputs();
-	cout << "[ !!Draw!! ]" << endl << endl;
-	system("pause");
+	if (playerChoice == compChoice)
+	{
+
+		cout << "[ !!Draw!! ]" << endl << endl;
+
+		system("pause");
+		system("CLS");
+	}
+	else
+	{
+		gameWinner = victDecider(playerChoice, computerChoice);
+
+		//
+
+		if (gameWinner == true)
+		{
+			cout << "[ Player Wins!! ]" << endl << endl;
+
+			system("pause");
+
+			playerScore++;
+
+		}
+		else
+		{
+			cout << "[ Computer Wins!! ]" << endl << endl;
+
+			system("pause");
+
+			computerScore++;
+		}
+		curRound++;
+	}
+
 	system("CLS");
 }
 
@@ -145,101 +187,83 @@ void game(int roundMax) {
 			printRoundScore();
 			gameInput();
 
-			if (playerChoice == computerChoice && gameExit == false)
+			if (gameExit == false)
 			{
-				drawRound();
+				roundWin(playerChoice, computerChoice);
 			}
 			else
 			{
-				gameWinner = victDecider(playerChoice, computerChoice);
-
-				//player wins
-				if (gameWinner == true && gameExit == false)
-				{
-					playerRoundWin();
-				}
-				//computer wins
-				else if (gameWinner == false && gameExit == false)
-				{
-					computerRoundWin();
-				}
-				//exit
-				else
-				{
-					gameExit = true;
-					titleMenu();
-				}
+				gameExit = true;
+				titleMenu();
 			}
 		}
 	}
 	else
 	{
+
 		while (curRound <= roundMax && gameExit == false)
 		{
 			printRoundScore();
 			gameInput();
-			if (playerChoice == 5)
+
+			if (gameExit == false)
 			{
-				cout << "";
-			}
-			if (playerChoice == computerChoice && gameExit == false)
-			{
-				drawRound();
+				roundWin(playerChoice, computerChoice);
 			}
 			else
 			{
-				gameWinner = victDecider(playerChoice, computerChoice);
-
-				//player wins
-				if (gameWinner == true && gameExit == false)
-				{
-					playerRoundWin();
-				}
-				//computer wins
-				else if (gameWinner == false && gameExit == false)
-				{
-					computerRoundWin();
-				}
-				//exit
-				else
-				{
-					cout << "Exit" << endl;
-					gameExit = true;
-				}
+				gameExit = true;
+				titleMenu();
 			}
 		}
 		if (curRound >= roundMax)
 		{
-			if (playerScore == computerScore)
-			{
-				curRound--;
-			}
-			else if (playerScore > computerScore)
-			{
-				system("CLS");
-				curRound--;
-				printRoundScore();
-				cout << "-----------------------------" << endl;
-				cout << "[ Player Wins the Game!! ]" << endl;
-				cout << "-----------------------------" << endl << endl;
-				system("pause");
-			}
-			else
-			{
-				system("CLS");
-				curRound--;
-				printRoundScore();
-				cout << "-----------------------------" << endl;
-				cout << "[ Computer Wins the Game!! ]" << endl;
-				cout << "-----------------------------" << endl << endl;
-				system("pause");
-			}
+			overallWinner(computerScore, playerScore);
 		}
+		if (playerScore == roundMax - 1)
+		{
+			overallWinner(computerScore, roundMax);
+		}
+		if (computerScore == roundMax - 1)
+		{
+			overallWinner(roundMax, playerScore);
+		}
+
 	}
 
 
 
 }
+void overallWinner(int compScore, int playerScore) {
+
+	if (playerScore == compScore)
+	{
+		curRound--;
+	}
+	else if (playerScore > compScore)
+	{
+		system("CLS");
+		curRound--;
+		printRoundScore();
+		cout << "-----------------------------" << endl;
+		cout << "[ Player Wins the Game!! ]" << endl;
+		cout << "-----------------------------" << endl << endl;
+		system("pause");
+		titleMenu();
+	}
+	else
+	{
+		system("CLS");
+		curRound--;
+		printRoundScore();
+		cout << "-----------------------------" << endl;
+		cout << "[ Computer Wins the Game!! ]" << endl;
+		cout << "-----------------------------" << endl << endl;
+		system("pause");
+		titleMenu();
+	}
+}
+
 //[0]Rock [1]Paper [2]Scissors [3]Lizard [4]Spock [5]Help [6]Quit
 // 1       2        3           4         5        6       7
 void gameInput() {
@@ -249,21 +273,26 @@ void gameInput() {
 	cout << "Enter Input: ";
 	cin >> playerChoice;
 	playerChoice--;
-	cout << "--------------------------" << endl;
+	cout << "---------------------------------" << endl;
 
-	if (playerChoice == 5)
+	if (playerChoice > 6 || playerChoice < 0)
+	{
+		cout << endl << "[ !!Invalid Input!! ]" << endl << endl;
+		system("pause");
+		while (playerChoice > 6 || playerChoice < 0)
+		{
+			system("CLS");
+			printRoundScore();
+			gameInput();
+		}
+	}
+	else if (playerChoice == 5)
 	{
 		helpMenu();
 		while (playerChoice == 5)
 		{
 			printRoundScore();
-			cout << "----------------------------------" << endl;
-			cout << "Enter [6] for help or [7] to quit" << endl;
-			cout << "----------------------------------" << endl;
-			cout << "Enter Input: ";
-			cin >> playerChoice;
-			playerChoice--;
-			cout << "--------------------------" << endl;
+			gameInput();
 
 			if (playerChoice == 5)
 			{
@@ -272,11 +301,11 @@ void gameInput() {
 		}
 
 	}
-	if (playerChoice == 6)
+	else if (playerChoice == 6)
 	{
 		gameExit = true;
 	}
-	
+
 	computerChoice = randomNumber();
 	system("CLS");
 
