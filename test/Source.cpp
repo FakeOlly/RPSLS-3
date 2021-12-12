@@ -28,7 +28,7 @@ bool gameExit = false;
 bool progExit = false;
 bool endlessMode = false;
 
-
+//define all possible game choices in an array so the program can print what selections the player and the computer made
 string gameChoices[5] = { "Rock", "Paper", "Scissors", "Lizard", "Spock" };
 
 //define the overall game logic (with all the draw conditions as a loss as to not confuse the user in the condition the draw evaluation fails)
@@ -312,10 +312,12 @@ void gameInput() {
 }
 
 int randomNumber() {
-	random_device random;
-	mt19937 ranGen(random());
-	uniform_int_distribution<int> uniq(0, 4);
-	int r_int = uniq(ranGen);
+	//random_device random;
+	//mt19937 ranGen(random());
+	//uniform_int_distribution<int> uniq(0, 4);
+	//int r_int = uniq(ranGen);
+
+	int r_int = rand() % 4;
 
 	return r_int;
 }
