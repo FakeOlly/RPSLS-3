@@ -151,9 +151,7 @@ void roundWin(int playerChoice, int compChoice) {
 	}
 	else
 	{
-		gameWinner = victDecider(playerChoice, computerChoice);
-
-		//
+		gameWinner = victDecider(playerChoice, compChoice);
 
 		if (gameWinner == true)
 		{
