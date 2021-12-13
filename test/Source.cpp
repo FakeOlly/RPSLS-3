@@ -46,6 +46,8 @@ bool gameLogic[5][5] = {
 	{true, false, true, false, false}
 };
 
+//this is an additional 2d array that has flavour text in the same positions as the game logic array to allow flavour text to be printed at the
+//end of each round
 string flavorText[5][5] = {
 	{"Null","Paper Covers Rock","Rock Crushes Scissors","Rock Crushes Lizard","Spock Vaporises Rock"},
 	{"Paper Covers Rock","Null","Scissors Cuts Paper","Lizard Eats Paper","Paper Disproves Spock"},
@@ -358,7 +360,7 @@ void roundWin(int playerChoice, int compChoice) {
 
 		/*
 		if the game winner boolean equals true:
-			display player round winner text
+			display player round winner text including flavour text
 			pause the console to allow the user to read the text
 			increment the player score variable by 1
 		*/
@@ -372,7 +374,7 @@ void roundWin(int playerChoice, int compChoice) {
 		}
 		/*
 		if the game winner boolean equals false:
-			display computer round winner text
+			display computer round winner text including flavour text
 			pause the console to allow the user to read the text
 			increment the computer score by one
 		*/
