@@ -1,3 +1,6 @@
+
+//Oliver Bond : P2530924
+
 #include <iostream>
 #include <random>
 
@@ -16,7 +19,7 @@ void roundWin(int playerChoice, int compChoice);
 void resetGameVars();
 void overallWinner(int compScore, int playerScore);
 
-//define all the global variable
+//define all the global variables
 int playerChoice = 0;
 int playerScore = 0;
 int computerChoice = 0;
@@ -44,6 +47,7 @@ int main() {
 	//start the program in a while loop to allow the user to exit to the menu multiple times without exiting the program
 	while (progExit == false)
 	{
+		//call the title menu function
 		titleMenu();
 	}
 
@@ -82,7 +86,52 @@ void titleMenu() {
 	cin >> menuSelect;
 	cout << endl;
 
-	//use the menu select variable to select an option from the switch
+	/*
+	while the user input is greater than 6 or less than 1 or if the data type entered doesnt match the menu select variable:
+		tell the user their input was invalid
+		clear the error state flags caused by the type mismatch
+		use cin.ignore(256, '\n') to prevent an unintended loop by removing the first value of characters from the input sequence or until the defined delim is reached
+		pause the console to allow the user to read the error message
+		call the title menu function
+	*/
+	while (menuSelect > 6 || menuSelect < 1 || cin.fail())
+	{
+		cout << "[!! Invalid Input !!]" << endl << endl;
+		cin.clear();
+		cin.ignore(256, '\n');
+		system("pause");
+		titleMenu();
+	}
+
+	/*
+	use the menu select variable to select an option from the switch:
+		case 1 - best of 3:
+			reset the game exit boolean to ensure the game doesn't exit to menu
+			call the game function, passing 3 as the number of rounds
+
+		case 2 - best of 5:
+			reset the game exit boolean to ensure the game doesn't exit to menu
+			call the game function, passing 5 as the number of rounds
+
+		case 3 - best of user defined:
+			reset the game exit boolean to ensure the game doesn't exit to menu
+			get the user to input the number of rounds they wish to play
+			call the game function, passing the user defined number of rounds
+
+		case 4 - endless mode:
+			reset the game exit boolean to ensure the game doesn't exit to menu
+			set the endless boolean to true to indicate the player wants endless rounds
+			call the game function, passing 0 as the number of rounds as in endless mode this value gets ignored
+
+		case 5 - exit:
+			set both game exit and program exit booleans to true to allow the user to exit the program
+
+		default - reset the menu in case of an invalid input:
+			notify the user of the general error type
+			pause the console to allow the user to understand
+			Clears the error state flags caused by the type mismatch using cin.clear()
+			use cin.ignore(256, '\n') to prevent an unintended loop by removing the first value of characters from the input sequence or until the defined delim is reached
+	*/
 	switch (menuSelect)
 	{
 	case 1: //best of 3
@@ -107,11 +156,13 @@ void titleMenu() {
 	case 5: //exit
 		gameExit = true;
 		progExit = true;
+
 		break;
 	default: //reset the menu in case of an invalid input
-		cout << "[ !!Invalid Input!! ]" << endl;
+		cout << "[!! Invalid Input - Input Validation Error !!]" << endl << endl;
 		system("pause");
-		titleMenu();
+		cin.clear();
+		cin.ignore(256, '\n');
 		break;
 	}
 }
@@ -135,51 +186,82 @@ void roundWin(int playerChoice, int compChoice) {
 	//print the round score and current inputs to keep the visuals consistent
 	printRoundScore();
 	printCurInputs();
-	
-	//if (playerChoice == 5)
-	//{
-	//	cout << "";
-	//}
 
+	/*
+	do a quick intial check to identify a draw state
+	if the player input is equal to the computer input:
+		display round draw text
+		pause the console to allow the user to read the text
+		clear the console
+	*/
 	if (playerChoice == compChoice)
 	{
-
 		cout << "[ !!Draw!! ]" << endl << endl;
-
 		system("pause");
 		system("CLS");
 	}
+
+	//else do the regular checks to decide the victor
 	else
 	{
+		//set the game winner variable equal to the return value of the victDecider function
 		gameWinner = victDecider(playerChoice, compChoice);
 
+		/*
+		if the game winner boolean equals true:
+			display player round winner text
+			pause the console to allow the user to read the text
+			increment the player score variable by 1
+		*/
 		if (gameWinner == true)
 		{
 			cout << "[ Player Wins!! ]" << endl << endl;
-
 			system("pause");
-
 			playerScore++;
-
 		}
+		/*
+		if the game winner boolean equals false:
+
+		*/
 		else
 		{
+			//display computer round winner text
 			cout << "[ Computer Wins!! ]" << endl << endl;
 
+			//pause the console to allow the user to read the text
 			system("pause");
 
+			//increment the computer score by one
 			computerScore++;
 		}
+		//if the round result isnt a draw, increment the current round variable by 1
 		curRound++;
 	}
-
+	//clear the console
 	system("CLS");
 }
 
+//this function controls starting the game, starting each round, and calling of all game related functions
 void game(int roundMax) {
+
+	//clear the console at the beginning of the game and at the start of each round
 	system("CLS");
+
+	//if the player has started the game in endless mode and the game exit boolean equals false
 	if (endlessMode == true && gameExit == false)
 	{
+		/*
+		while endless mode equals true:
+		call a function that prints the current round and the current score
+		calls a function that gets the player input and generates the computers input
+
+		if game exit boolean equals false calculate the round winner based on the user and computer input:
+			call a function that determines who the round victor is when passed the player and computer input
+
+		if the game exit boolean equals true:
+			set the game exit boolean to true
+			call the title menu function
+		*/
 		while (endlessMode == true && gameExit == false)
 		{
 			printRoundScore();
@@ -196,9 +278,22 @@ void game(int roundMax) {
 			}
 		}
 	}
+	//if the user selected any other game mode except endless mode
 	else
 	{
 
+		/*
+		while the current round is less than or equal to the maximum round integer passed into the game function, and the game exit boolean equals false:
+		call a function that prints the current round number and the current score
+		call a function that gets the user input and generates the computer input
+
+		if the game exit boolean equals false
+			call a function that determines who the round victor is when passed the player and computer input
+
+		if the game exit boolean equals true
+			set the game exit boolean to true
+			call the title menu function
+		*/
 		while (curRound <= roundMax && gameExit == false)
 		{
 			printRoundScore();
@@ -214,30 +309,35 @@ void game(int roundMax) {
 				titleMenu();
 			}
 		}
+		/*if the current round is greater than or equal to the maximum round passed into the game function:
+		call a function that decides the overall winner by being passed the computer and player score variable*/
 		if (curRound >= roundMax)
 		{
 			overallWinner(computerScore, playerScore);
 		}
-		if (playerScore == roundMax - 1)
-		{
-			overallWinner(computerScore, roundMax);
-		}
-		if (computerScore == roundMax - 1)
-		{
-			overallWinner(roundMax, playerScore);
-		}
 
 	}
 
-
-
 }
+
+//this function decides the overall winner
 void overallWinner(int compScore, int playerScore) {
 
+
+	/*in order to prevent an unsatisfying overall draw scenario, decrease the current round
+	integer in order to increase the game length until an overall winner is found if the player
+	score is the same as the computer score*/
 	if (playerScore == compScore)
 	{
 		curRound--;
 	}
+
+	/*if the player score is higher than the computer score
+	clear the screen,
+	decrement the current round so the round displayed is not higher than the round maximum,
+	display computer wins text,
+	pause the console to allow the player to read the text,
+	call the title menu function*/
 	else if (playerScore > compScore)
 	{
 		system("CLS");
@@ -249,6 +349,13 @@ void overallWinner(int compScore, int playerScore) {
 		system("pause");
 		titleMenu();
 	}
+
+	/*if the player score is not higher than the computer score
+	clear the screen
+	decrement the current round so the round displayed is not higher than the round maximum
+	display computer wins text
+	pause the console to allow the player to read the text
+	call the title menu function*/
 	else
 	{
 		system("CLS");
@@ -273,16 +380,16 @@ void gameInput() {
 	playerChoice--;
 	cout << "---------------------------------" << endl;
 
-	if (playerChoice > 6 || playerChoice < 0)
+	if (playerChoice > 6 || playerChoice < 0 || cin.fail())
 	{
 		cout << endl << "[ !!Invalid Input!! ]" << endl << endl;
+		cin.clear(); //Clears the error state flags caused by the type mismatch
+		cin.ignore(256, '\n');//used to prevent an unintended loop by removing the first value of characters from the input sequence or until the defined delim is reached
 		system("pause");
-		while (playerChoice > 6 || playerChoice < 0)
-		{
-			system("CLS");
-			printRoundScore();
-			gameInput();
-		}
+		system("CLS");
+		printRoundScore();
+		gameInput();
+
 	}
 	else if (playerChoice == 5)
 	{
