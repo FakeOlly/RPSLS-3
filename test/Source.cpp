@@ -1,12 +1,15 @@
 
 //Oliver Bond : P2530924
 
+//[0]Rock [1]Paper [2]Scissors [3]Lizard [4]Spock [5]Help [6]Quit
+// 1       2        3           4         5        6       7
+
 #include <iostream>
 #include <random>
 
 using namespace std;
 
-
+//define function forward declarations
 void titleMenu();
 void game(int roundMax);
 void gameInput();
@@ -43,27 +46,28 @@ bool gameLogic[5][5] = {
 	{true, false, true, false, false}
 };
 
+string flavorText[5][5] = {
+	{"Null","Paper Covers Rock","Rock Crushes Scissors","Rock Crushes Lizard","Spock Vaporises Rock"},
+	{"Paper Covers Rock","Null","Scissors Cuts Paper","Lizard Eats Paper","Paper Disproves Spock"},
+	{"Rock Crushes Scissors","Scissors Cuts Paper","Null","Scissors Decapitates Lizard","Spock Smashes Scissors"},
+	{"Rock Crushes Lizard","Lizard Eats Paper","Scissors Decapitates Lizard","Null","Lizard Poisons Spock"},
+	{"Spock Vaporises Rock","Paper Disproves Spock","Spock Smashes Scissors","Lizard Poisons Spock","Null"}
+};
+
 int main() {
+
 	//start the program in a while loop to allow the user to exit to the menu multiple times without exiting the program
 	while (progExit == false)
 	{
 		//call the title menu function
 		titleMenu();
 	}
-
 	return 0;
 }
 
-void resetGameVars() {
-	//set all the game sepecific variables to allow the user to play multiple games without restarting the program
-	playerChoice = 0;
-	playerScore = 0;
-	computerChoice = 0;
-	computerScore = 0;
-	curRound = 1;
-}
-
+//this function prints a menu to allow multiple different modes, and to give the user a clean exit option
 void titleMenu() {
+
 	//reset game specific variables
 	resetGameVars();
 
@@ -166,84 +170,9 @@ void titleMenu() {
 		break;
 	}
 }
-void printRoundScore() {
-	//this function prints the current round number and the current scores
-	cout << "[ Round Number: " << curRound << " ]" << endl;
-	cout << "[ Player Score: " << playerScore << " || " << "Computer Score: " << computerScore << " ]" << endl << endl;
-}
-
-void printCurInputs() {
-	//this function prints the current round inputs from the user and the computer
-	cout << "--------------------------" << endl;
-	cout << "Player Input: " << gameChoices[playerChoice] << endl;
-	cout << "Computer Input: " << gameChoices[computerChoice] << endl;
-	cout << "--------------------------" << endl << endl;
-}
-
-void roundWin(int playerChoice, int compChoice) {
-	//this function prints the individual round victor
-
-	//print the round score and current inputs to keep the visuals consistent
-	printRoundScore();
-	printCurInputs();
-
-	/*
-	do a quick intial check to identify a draw state
-	if the player input is equal to the computer input:
-		display round draw text
-		pause the console to allow the user to read the text
-		clear the console
-	*/
-	if (playerChoice == compChoice)
-	{
-		cout << "[ !!Draw!! ]" << endl << endl;
-		system("pause");
-		system("CLS");
-	}
-
-	//else do the regular checks to decide the victor
-	else
-	{
-		//set the game winner variable equal to the return value of the victDecider function
-		gameWinner = victDecider(playerChoice, compChoice);
-
-		/*
-		if the game winner boolean equals true:
-			display player round winner text
-			pause the console to allow the user to read the text
-			increment the player score variable by 1
-		*/
-		if (gameWinner == true)
-		{
-			cout << "[ Player Wins!! ]" << endl << endl;
-			system("pause");
-			playerScore++;
-		}
-		/*
-		if the game winner boolean equals false:
-
-		*/
-		else
-		{
-			//display computer round winner text
-			cout << "[ Computer Wins!! ]" << endl << endl;
-
-			//pause the console to allow the user to read the text
-			system("pause");
-
-			//increment the computer score by one
-			computerScore++;
-		}
-		//if the round result isnt a draw, increment the current round variable by 1
-		curRound++;
-	}
-	//clear the console
-	system("CLS");
-}
 
 //this function controls starting the game, starting each round, and calling of all game related functions
 void game(int roundMax) {
-
 	//clear the console at the beginning of the game and at the start of each round
 	system("CLS");
 
@@ -320,6 +249,150 @@ void game(int roundMax) {
 
 }
 
+//this function controls all of the turn inputs for the game function
+void gameInput() {
+	cout << "---------------------------------" << endl;
+	cout << "Enter [6] for help or [7] to quit" << endl;
+	cout << "---------------------------------" << endl;
+	cout << "Enter Input: ";
+	cin >> playerChoice;
+	playerChoice--;
+	cout << "---------------------------------" << endl;
+
+	if (playerChoice > 6 || playerChoice < 0 || cin.fail())
+	{
+		cout << endl << "[ !!Invalid Input!! ]" << endl << endl;
+		cin.clear(); //Clears the error state flags caused by the type mismatch
+		cin.ignore(256, '\n');//used to prevent an unintended loop by removing the first value of characters from the input sequence or until the defined delim is reached
+		system("pause");
+		system("CLS");
+		printRoundScore();
+		gameInput();
+
+	}
+	else if (playerChoice == 5)
+	{
+		helpMenu();
+		while (playerChoice == 5)
+		{
+			printRoundScore();
+			gameInput();
+
+			if (playerChoice == 5)
+			{
+				helpMenu();
+			}
+		}
+
+	}
+	else if (playerChoice == 6)
+	{
+		gameExit = true;
+	}
+
+	computerChoice = randomNumber();
+	system("CLS");
+
+}
+
+//this function sets all the game sepecific variables to their default values to allow the user to play multiple games without restarting the program
+void resetGameVars() {
+	playerChoice = 0;
+	playerScore = 0;
+	computerChoice = 0;
+	computerScore = 0;
+	curRound = 1;
+}
+
+//this function prints the current round number and the current scores
+void printRoundScore() {
+	cout << "[ Round Number: " << curRound << " ]" << endl;
+	cout << "[ Player Score: " << playerScore << " || " << "Computer Score: " << computerScore << " ]" << endl << endl;
+}
+
+//this function prints the current round inputs from the user and the computer as a string using the game choices array
+void printCurInputs() {
+	cout << "--------------------------" << endl;
+	cout << "Player Input: " << gameChoices[playerChoice] << endl;
+	cout << "Computer Input: " << gameChoices[computerChoice] << endl;
+	cout << "--------------------------" << endl << endl;
+}
+
+//this function inputs the player and computer choices into the game logic 2d array, 
+//which returns a true or false based on whether the player input has won or lost
+bool victDecider(int playerChoice, int computerChoice)
+{
+	gameOutcome = gameLogic[playerChoice][computerChoice];
+
+	return gameOutcome;
+}
+
+//this function prints the individual round victor
+void roundWin(int playerChoice, int compChoice) {
+
+	//print the round score and current inputs to keep the visuals consistent
+	printRoundScore();
+	printCurInputs();
+
+	/*
+	do a quick intial check to identify a draw state
+	if the player input is equal to the computer input:
+		display round draw text
+		pause the console to allow the user to read the text
+		clear the console
+	*/
+	if (playerChoice == compChoice)
+	{
+		cout << "[ !!Draw!! ]" << endl << endl;
+		system("pause");
+		system("CLS");
+	}
+
+	//else do the regular checks to decide the victor
+	else
+	{
+		//set the game winner variable equal to the return value of the victDecider function
+		gameWinner = victDecider(playerChoice, compChoice);
+
+		string fText = flavorText[playerChoice][compChoice];
+
+		/*
+		if the game winner boolean equals true:
+			display player round winner text
+			pause the console to allow the user to read the text
+			increment the player score variable by 1
+		*/
+		if (gameWinner == true)
+		{
+			cout << "[ " << fText << " ]" << endl << endl;
+			cout << "--------------------------" << endl << endl;
+			cout << "[ Player Wins!! ]" << endl << endl;
+			system("pause");
+			playerScore++;
+		}
+		/*
+		if the game winner boolean equals false:
+			display computer round winner text
+			pause the console to allow the user to read the text
+			increment the computer score by one
+		*/
+		else
+		{
+			cout << "[ " << fText << " ]" << endl << endl;
+			cout << "--------------------------" << endl << endl;
+			cout << "[ Computer Wins!! ]" << endl << endl;
+			system("pause");
+			computerScore++;
+		}
+
+		//if the round result isnt a draw, increment the current round variable by 1
+		curRound++;
+	}
+
+	//clear the console
+	system("CLS");
+}
+
 //this function decides the overall winner
 void overallWinner(int compScore, int playerScore) {
 
@@ -369,53 +442,7 @@ void overallWinner(int compScore, int playerScore) {
 	}
 }
 
-//[0]Rock [1]Paper [2]Scissors [3]Lizard [4]Spock [5]Help [6]Quit
-// 1       2        3           4         5        6       7
-void gameInput() {
-	cout << "---------------------------------" << endl;
-	cout << "Enter [6] for help or [7] to quit" << endl;
-	cout << "---------------------------------" << endl;
-	cout << "Enter Input: ";
-	cin >> playerChoice;
-	playerChoice--;
-	cout << "---------------------------------" << endl;
-
-	if (playerChoice > 6 || playerChoice < 0 || cin.fail())
-	{
-		cout << endl << "[ !!Invalid Input!! ]" << endl << endl;
-		cin.clear(); //Clears the error state flags caused by the type mismatch
-		cin.ignore(256, '\n');//used to prevent an unintended loop by removing the first value of characters from the input sequence or until the defined delim is reached
-		system("pause");
-		system("CLS");
-		printRoundScore();
-		gameInput();
-
-	}
-	else if (playerChoice == 5)
-	{
-		helpMenu();
-		while (playerChoice == 5)
-		{
-			printRoundScore();
-			gameInput();
-
-			if (playerChoice == 5)
-			{
-				helpMenu();
-			}
-		}
-
-	}
-	else if (playerChoice == 6)
-	{
-		gameExit = true;
-	}
-
-	computerChoice = randomNumber();
-	system("CLS");
-
-}
-
+//this function generates a random integer between 0 and 4 (for the computer input) and returns it
 int randomNumber() {
 	//random_device random;
 	//mt19937 ranGen(random());
@@ -427,13 +454,8 @@ int randomNumber() {
 	return r_int;
 }
 
-bool victDecider(int playerChoice, int computerChoice)
-{
-	gameOutcome = gameLogic[playerChoice][computerChoice];
 
-	return gameOutcome;
-}
-
+//this function prints a help menu for the user containing the numbers corresponding to the moves and the two program actions
 void helpMenu() {
 	system("CLS");
 	printRoundScore();
@@ -453,4 +475,8 @@ void helpMenu() {
 	system("pause");
 	system("CLS");
 }
+
+
+
+
 
