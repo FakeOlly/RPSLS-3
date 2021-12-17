@@ -446,11 +446,6 @@ void overallWinner(int compScore, int playerScore) {
 
 //this function generates a random integer between 0 and 4 (for the computer input) and returns it
 int randomNumber() {
-	//random_device random;
-	//mt19937 ranGen(random());
-	//uniform_int_distribution<int> uniq(0, 4);
-	//int r_int = uniq(ranGen);
-
 	int r_int = rand() % 4;
 
 	return r_int;
